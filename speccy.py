@@ -13,7 +13,7 @@ import math
 from scanner import Scanner
 from datetime import datetime
 import os
-import cPickle
+import _pickle as cPickle
 
 
 class Speccy(object):
@@ -132,7 +132,7 @@ class Speccy(object):
                 self.bg_sample_count_limit += 50
                 self.bg_sample_count = 0
                 self.reset_viewport()
-                print "set bg persistence cnt to %d" % self.bg_sample_count_limit
+                print ("set bg persistence cnt to %d" % self.bg_sample_count_limit)
             else:
                 self.scanners[self.dev_idx].cmd_samplecount_up()
         elif key == 'Down':
@@ -142,18 +142,18 @@ class Speccy(object):
                     self.bg_sample_count_limit = 0
                 self.bg_sample_count = 0
                 self.reset_viewport()
-                print "set bg persistence cnt to %d" % self.bg_sample_count_limit
+                print ("set bg persistence cnt to %d" % self.bg_sample_count_limit)
             else:
                 self.scanners[self.dev_idx].cmd_samplecount_down()
         elif key == 'd':
             if self.dump_to_file:
                 self.dump_to_file = False
                 self.dump_file.close()
-                print "dump to file finished"
+                print ("dump to file finished")
             else:
                 fn = "./spectral_data/%s.bin" % datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                print "start dumping to %s" % fn
-                self.dump_file = open(fn, 'w')
+                print ("start dumping to %s" % fn)
+                self.dump_file = open(fn, 'wb')
                 self.dump_to_file = True
         elif key == 'u':
             self.ui_update = not self.ui_update
@@ -246,7 +246,7 @@ class Speccy(object):
 
     def smooth_data(self, vals, window_len):
         smoothed = [self.power_min] * len(vals)
-        half_window = window_len / 2
+        half_window = window_len // 2
         for i in range(half_window, len(vals) - half_window):
             window = vals[i - half_window:i+half_window]
             smoothed[i] = sum(window) / float(len(window))
@@ -287,7 +287,7 @@ class Speccy(object):
                         self.mpf_gen += 1
                     self.bg_sample_count += 1
 
-                for freq_sc, sigval in pwr.iteritems():
+                for freq_sc, sigval in pwr.items():
                     if freq_sc not in hmp or self.hmp_gen_tbl.get(freq_sc, 0) < self.hmp_gen:
                         hmp[freq_sc] = {}
                         self.hmp_gen_tbl[freq_sc] = self.hmp_gen
@@ -322,7 +322,7 @@ class Speccy(object):
 
         zmax = 0
         for center_freq in self.heatmap.keys():
-            for power, value in self.heatmap[center_freq].iteritems():
+            for power, value in self.heatmap[center_freq].items():
                 if zmax < value:
                     zmax = self.heatmap[center_freq][power]
 
@@ -334,7 +334,7 @@ class Speccy(object):
             pal_size = len(self.color_map)
             samples = {}
             for center_freq in self.heatmap.keys():
-                for power, value in self.heatmap[center_freq].iteritems():
+                for power, value in self.heatmap[center_freq].items():
                     # scale x to viewport
                     posx, posy = self.sample_to_viewport(center_freq, power, wx, wy)
 
@@ -347,7 +347,7 @@ class Speccy(object):
                     l += [(posx, posy)]
 
             # render all rectangles batched by color
-            for intensity, pts in samples.iteritems():
+            for intensity, pts in samples.items():
                 color = self.color_map[intensity]
                 cr.set_source_rgba(color[0], color[1], color[2], .8)
                 for xy in pts:
@@ -399,6 +399,6 @@ class Speccy(object):
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
-        print "\nUsage: \n  $ sudo python speccy.py wlanX [wlanY] [wlanZ] [wlanA]\n"
+        print ("\nUsage: \n  $ sudo python speccy.py wlanX [wlanY] [wlanZ] [wlanA]\n")
         exit(0)
     Speccy(sys.argv[1:]).main()

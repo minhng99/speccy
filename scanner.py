@@ -62,8 +62,7 @@ class Scanner(object):
         self.monitor_added = False
         self.debugfs_dir = self._find_debugfs_dir()
         if not self.debugfs_dir:
-            raise Exception, \
-                  'Unable to access spectral_scan_ctl file for interface %s' % interface
+            raise Exception('Unable to access spectral_scan_ctl file for interface %s' % interface)
 
         self.is_ath10k = self.debugfs_dir.endswith("ath10k")
         self.ctl_file = '%s/spectral_scan_ctl' % self.debugfs_dir
@@ -84,10 +83,10 @@ class Scanner(object):
         self.lock.release()
         # TODO restart scanner
         self.freq_idx = 0;
-        print "freqlist: %s" % self.freqlist
+        print ("freqlist: %s" % self.freqlist)
 
     def hw_setup_chanscan(self):
-        print "enter 'chanscan' mode: set dev type to 'managed'"
+        print ("enter 'chanscan' mode: set dev type to 'managed'")
         os.system("ip link set %s down" % self.interface)
         os.system("iw dev %s set type managed" % self.interface)
         os.system("ip link set %s up" % self.interface)
@@ -100,7 +99,7 @@ class Scanner(object):
         if self.noninvasive:
             self.dev_add_monitor()
         else:
-            print "enter 'background' mode: set dev type to 'monitor'"
+            print ("enter 'background' mode: set dev type to 'monitor'")
             os.system("ip link set %s down" % self.interface)
             os.system("iw dev %s set type monitor" % self.interface)
             os.system("ip link set %s up" % self.interface)
@@ -131,7 +130,7 @@ class Scanner(object):
 
         idx = (self.freq_idx + 1) % len(self.freqlist)
 
-        print "tune to freq %s" % self.freqlist[idx]
+        print ("tune to freq %s" % self.freqlist[idx])
         self.fix_ht40_mode()
         self.cmd_setfreq(idx)
         self.cmd_trigger()
@@ -142,7 +141,7 @@ class Scanner(object):
 
         idx = (self.freq_idx - 1) % len(self.freqlist)
 
-        print "tune to freq %s" % self.freqlist[idx]
+        print ("tune to freq %s" % self.freqlist[idx])
         self.fix_ht40_mode()
         self.cmd_setfreq(idx)
         self.cmd_trigger()
@@ -191,14 +190,14 @@ class Scanner(object):
         f.close()
 
     def cmd_set_samplecount(self, count):
-        print "set sample count to %d" % count
+        print ("set sample count to %d" % count)
         f = open(self.sample_count_file, 'w')
-        f.write("%s" % count)
+        f.write("%d" % count)
         f.close()
 
     def set_short_repeat(self, short_repeat):
         f = open(self.short_repeat_file, 'w')
-        f.write("%s" % short_repeat)
+        f.write("%d" % short_repeat)
         f.close()
 
     def cmd_toggle_short_repeat(self):
@@ -209,11 +208,11 @@ class Scanner(object):
             curval = 1
         else:
             curval = 0
-        print "set short repeat to %d" % curval
+        print ("set short repeat to %d" % curval)
         self.set_short_repeat(curval)
 
     def cmd_setchannel(self):
-        print "set channel to %d in mode %s" % (self.cur_chan, self.channel_mode)
+        print ("set channel to %d in mode %s" % (self.cur_chan, self.channel_mode))
         if not self.noninvasive:
             os.system("iw dev %s set channel %d %s" % (self.interface, self.cur_chan, self.channel_mode))
         else:  # this seems to be strange:
@@ -223,7 +222,7 @@ class Scanner(object):
         freq = self.freqlist[idx]
         chan = self.freq_to_chan(int(freq))
         mode = self.channel_mode
-        print "set freq to %s (%d) in mode %s" % (freq, chan, mode)
+        print ("set freq to %s (%d) in mode %s" % (freq, chan, mode))
         if not self.noninvasive:
             os.system("iw dev %s set freq %s %s" % (self.interface, freq, mode))
         else:  # this seems to be strange:
@@ -252,7 +251,7 @@ class Scanner(object):
     def dev_add_monitor(self):
         if self.monitor_added:
             return
-        print "add a monitor interface"
+        print ("add a monitor interface")
         os.system("iw phy %s interface add %s type monitor" % (self.phy, self.monitor_name))
         os.system("ip link set %s up" % self.monitor_name)
         self.monitor_added = True
